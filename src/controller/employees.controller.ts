@@ -1,44 +1,41 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { validateInput } from "../middleware/validateReq";
 import { schema_create } from "../schema/employee.schema";
 import { checkRole } from "../middleware/authorize";
-import { v4 as generateUUID } from "uuid";
-import Employee, { IEmployee } from "../model/employee.model";
+import Employee from "../model/employee.model";
+import employeeService from "../services/employee.service";
+import { ErrorResponse, SuccessReponse } from "../config/config";
 
 export const createEmployeesHandler = [
     checkRole('HR', 'Admin'),
     validateInput(schema_create),
-    async (req : Request, res : Response) => {
+    async (req : Request, res : Response, next : NextFunction) => {
         try {
-            let { address, phone, firstname, lastname, payment_type } = req.body;
-            const employee_id = generateUUID();
-            const hire_date = new Date();
+            const reponseFromService = await employeeService.createEmployee(req.body);
+            if(reponseFromService && reponseFromService instanceof Error) {
+                const errorResponse = {
+                    code : 403,
+                    status : 'Forbidden',
+                    msg : reponseFromService.message
+                } as ErrorResponse;
 
-            const body = {
-                employee_id,
-                address,
-                phone,
-                lastname,
-                firstname,
-                payment_type,
-                hire_date
-            } as Required<IEmployee>;
-
-            const employee = new Employee(body);
-            await employee.save();
+                // @ts-ignore
+                res.error = errorResponse;
+                return next(reponseFromService);
+            }
     
-            return res.status(200).json({
+            const employee = reponseFromService;
+            const response = {
                 code : 200,
                 status : 'Successfully',
                 data : employee
-            });
+            } as SuccessReponse<Employee>;
+
+            return res.status(response.code).json(response)
         } catch (error) {
-            console.log(error);
-            return res.status(500).json({
-                code : 500,
-                status : 'Internal Server Error',
-                msg : (error as Error).message,
-            })
+            // This place catches errors from functions of the model
+            // Pass the error to the middleware which have error handle responsibility
+            next(error);
         }
     }
 ]

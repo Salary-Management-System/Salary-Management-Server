@@ -1,7 +1,7 @@
 
 import { QueryConfig } from "pg";
 import client from "../../dbconnect/dbconnect";
-import { IEmployee } from "./employee.model";
+import Employee, { IEmployee } from "./employee.model";
 
 
 export interface IUser {
@@ -12,8 +12,12 @@ export interface IUser {
     created_at : Date
 }
 
-export type UserResult = Omit<IUser, 'password'>
+export interface UserNest extends User {
+    employee : Employee,
+    roles : string[]
+};
 
+export type UserResult = Omit<User, 'password'>
 export class User {
     public user_id : string;
     public username: string;
@@ -56,16 +60,24 @@ export class User {
         }
     }
 
-    static async findByUsername(username : string) {
+    static async findByUsername(username : string, option : boolean = false) {
         try {
+            let textQuery = `SELECT * FROM users WHERE username=$1;`;
             const queryConfig = {
-                text : `SELECT * FROM users WHERE username=$1`,
+                text : textQuery,
                 values : [username]
             } as QueryConfig
             const { rows } = await client.query<User>(queryConfig);
 
+            let results = rows[0];
+
+            if(option && rows[0].employee_id != null) {
+                const employee = await Employee.findById(rows[0].employee_id);
+                // @ts
+                results = {...results, employee} as UserNest;
+            }
             // Return the first element because of finding one
-            return rows[0];
+            return results;
         } catch(error) {
             console.log(error);
             throw error;

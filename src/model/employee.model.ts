@@ -77,6 +77,22 @@ class Employee {
         return rows || null;
     }
 
+    static async findByName(name : string) {
+        try {
+            const [firstname, lastname] = name.split(' ');
+            const queryConfig = {
+                text : 'SELECT * FROM employees WHERE firstname=$1 AND lastname=$2',
+                values : [firstname, lastname]
+            } as QueryConfig
+    
+            const { rows } = await client.query<Employee>(queryConfig)
+    
+            return rows || null;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     static async isExist(id : IEmployee['employee_id']) {
         const queryConfig = {
             text : `SELECT * FROM employees WHERE employee_id=$1`,

@@ -10,6 +10,7 @@ import EmployeeRouter from "./route/employee.route";
 import { Role } from "./model/role.model";
 import { errorHandler } from "./middleware/errorHandler";
 import { reqLog } from "./middleware/reqLog";
+import cors from 'cors';
 
 const app = express();
 
@@ -23,13 +24,21 @@ config(envOption);
 // For parsing cookie data
 app.use(cookieParser());
 
+// For Cross-Origin Resource Sharing
+app.use(cors({
+    origin : ['http://localhost:4200'],
+    // Set 'credentials' to true to configure 'Access-Control-Allow-Credentials' header for accessing from other domain follow by orgin array
+    credentials : true,
+    exposedHeaders : ['set-cookie']
+}));
+
 // Set default header Content-Type to application/json
 app.use(express.json());
 app.use(express.urlencoded({ extended : false }))
 
 app.use(reqLog)
 
-app.post('/auth', [...authentication])
+app.post('/api/auth', [...authentication])
 app.use(deserialize)
 
 app.use('/api/users', requireUser, UserRoute)

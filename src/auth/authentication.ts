@@ -1,7 +1,7 @@
 import { compare } from "bcrypt";
 import { Request, Response } from "express"
 import { sign, SignOptions } from "jsonwebtoken";
-import { User } from "../model/user.model"
+import { User, UserNest } from "../model/user.model"
 import { config, DotenvConfigOptions } from "dotenv";
 import path from "path";
 import { validateInput } from "../middleware/validateReq";
@@ -19,7 +19,7 @@ export const authentication = [
     async (req : Request, res : Response) => {
         const { username, password } = req.body
         // Get User from DB
-        const foundedUser = await User.findByUsername(username);
+        const foundedUser = await User.findByUsername(username, true);
     
         if(!foundedUser) return res.status(404).json({
             code : 404,
@@ -38,7 +38,7 @@ export const authentication = [
     
         // Create Access Token
         // @ts-ignore
-        const accessToken = sign(foundedUser, process.env.PRIVATE_KEY, { expiresIn : '15m' });
+        const accessToken = sign(foundedUser, process.env.PRIVATE_KEY, { expiresIn : '20s' });
         
         // Create Refresh Token
         // @ts-ignore
@@ -46,13 +46,16 @@ export const authentication = [
     
         // Save refresh token to cookie
         res.cookie('refreshToken', refreshToken, { httpOnly : true, maxAge : 60 * 1000 * 60 * 24 * 7 });
+
+        const roles = await User.getAllRoles(foundedUser.user_id);
     
         return res.status(200).json({
             code : 200,
             status : 'OK',
             data : {
                 accessToken,
-                refreshToken
+                refreshToken,
+                user : {...foundedUser, roles : roles} as UserNest
             }
         })
     }
