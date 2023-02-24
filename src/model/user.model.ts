@@ -62,20 +62,24 @@ export class User {
 
     static async findByUsername(username : string, option : boolean = false) {
         try {
-            let textQuery = `SELECT * FROM users WHERE username=$1;`;
-            const queryConfig = {
-                text : textQuery,
-                values : [username]
-            } as QueryConfig
-            const { rows } = await client.query<User>(queryConfig);
+            let textQuery = `SELECT * FROM users WHERE username=$1`;
+            let values = [username];
 
+            let queryConfig = {
+                text : textQuery,
+                values : values
+            } as QueryConfig
+            let { rows } = await client.query<User>(queryConfig);
             let results = rows[0];
 
-            if(option && rows[0].employee_id != null) {
-                const employee = await Employee.findById(rows[0].employee_id);
-                // @ts
-                results = {...results, employee} as UserNest;
+            if(option && rows[0].employee_id !== null) {
+                queryConfig.text = 'SELECT * from employees WHERE employee_id=$1'
+                queryConfig.values = [rows[0].employee_id];
+                let relations = await client.query(queryConfig);
+                // @ts-ignore
+                results['employee'] = {...relations.rows[0]};
             }
+
             // Return the first element because of finding one
             return results;
         } catch(error) {

@@ -1,5 +1,6 @@
 import { QueryConfig } from "pg";
 import client from "../../dbconnect/dbconnect";
+const table = 'allowances';
 
 export interface IAllowance {
     allowance_id? : number,
@@ -25,14 +26,32 @@ export class Allowance {
     async save() {
         const pros = Object.keys(this);
         const values = Object.values(this);
-        pros.shift();
-        values.shift();
 
         const queryConfig = {
-            text : `INSERT INTO allowances(${pros.join(',')}) VALUES(${pros.map((_, index) => '$' + ++index).join(',')})`,
+            text : `INSERT INTO ${table}(${pros.join(',')}) VALUES(${pros.map((_, index) => '$' + ++index).join(',')})`,
             values : values
         } as QueryConfig;
         await client.query<Required<IAllowance>>(queryConfig);
         return;
+    }
+
+    static async findAll() {
+        const queryConfig = {
+            text : `SELECT * FROM ${table}`
+        } as QueryConfig
+        const { rows } = await client.query(queryConfig);
+        const result = rows;
+
+        return result || null;
+    }
+    static async findByID(id : string) {
+        const queryConfig = {
+            text : `SELECT * FROM ${table} WHERE allowance_id=$1`,
+            values : [id]
+        } as QueryConfig
+        const { rows } = await client.query(queryConfig);
+        const [result] = rows;
+
+        return result || null;
     }
 }

@@ -4,6 +4,7 @@ import { ErrorResponse } from "../config/config";
 
 export const errorHandler = (error : Error, _ : Request, res : Response, next : NextFunction) : Omit<ErrorRequestHandler, 'next'> => {
     log.error(error.message);
+    console.log(error)
     //@ts-ignore
     const response = res.error ? res.error : {
         code : 500,

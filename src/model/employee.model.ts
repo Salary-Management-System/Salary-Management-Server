@@ -9,7 +9,8 @@ export interface IEmployee {
     lastname : string,
     payment_type : PaymentType,
     hire_date : Date | null,
-    current_salary : number
+    current_salary : number,
+    job_id : string
 }
 
 export enum PaymentType {
@@ -26,9 +27,11 @@ class Employee {
     public lastname: string;
     public payment_type: PaymentType;
     public hire_date: Date | null;
+    public job_id : string;
+    public current_salary : number;
 
     constructor(
-        { employee_id, address, phone, firstname, lastname, payment_type, hire_date } : Required<IEmployee>
+        { employee_id, address, phone, firstname, lastname, payment_type, hire_date, job_id, current_salary  } : Required<IEmployee>
     ) {
         this.employee_id = employee_id;
         this.address = address;
@@ -37,6 +40,8 @@ class Employee {
         this.lastname = lastname;
         this.payment_type = payment_type ? payment_type : PaymentType.Gross;
         this.hire_date = hire_date;
+        this.job_id = job_id;
+        this.current_salary = current_salary
     }
 
     get fullname() {
@@ -57,6 +62,30 @@ class Employee {
         await client.query(queryConfig);
         return;
     }
+    async getJob() {
+        let queryConfig = {
+            text : 'SELECT * FROM job_function WHERE job_function_id=$1',
+            values : [this.job_id]
+        } as QueryConfig
+        const { rows } = await client.query(queryConfig);
+        console.log('Job : ', rows[0])
+        let result = rows[0];
+        if(result) {
+            // Find position
+            queryConfig.text = 'SELECT * FROM positions WHERE position_id=$1'
+            queryConfig.values = [result.position_id];
+            const position = await client.query(queryConfig);
+            result['position'] = position.rows[0];
+            console.log('Pos : ', position)
+            // Find level
+            queryConfig.text = 'SELECT * FROM levels WHERE level_id=$1'
+            queryConfig.values = [result.level_id];
+            const level = await client.query(queryConfig);
+            result['level'] = level.rows[0];
+            console.log('Lev : ', level)
+        }
+        return result;
+    }
     static async findById(id : IEmployee['employee_id']) {
         const queryConfig = {
             text : `SELECT * FROM employees WHERE employee_id=$1`,
@@ -72,7 +101,7 @@ class Employee {
             text : 'SELECT * FROM employees'
         } as QueryConfig
 
-        const { rows } = await client.query<Employee>(queryConfig)
+        const { rows } = await client.query<IEmployee>(queryConfig)
 
         return rows || null;
     }

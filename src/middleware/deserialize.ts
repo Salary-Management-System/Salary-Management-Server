@@ -15,7 +15,6 @@ export const deserialize = async (
   next: NextFunction
 ) => {
   try {
-    console.log(req.cookies)
     // Get access token from headers
     let accessToken = req.headers["authorization"];
 
@@ -82,7 +81,10 @@ export const deserialize = async (
 
     if (newAccessToken) {
       // Add the new access token to the response header
-      res.setHeader("x-access-token", newAccessToken);
+      res.set('x-access-token', newAccessToken);
+      // @ts-ignore
+      const { exp } = decodeJWT(newAccessToken);
+      res.set("x-access-token-exp", exp)
 
       const { decoded: decoded_newAccess } = decode(newAccessToken);
 
@@ -91,7 +93,6 @@ export const deserialize = async (
 
       // @ts-ignore
       req.role = await User.getAllRoles(user.user_id);
-      console.log('here')
     }
     return next();
   } catch (error) {next(error);}

@@ -1,6 +1,6 @@
 import { compare } from "bcrypt";
 import { Request, Response } from "express"
-import { sign, SignOptions } from "jsonwebtoken";
+import { decode, sign, SignOptions } from "jsonwebtoken";
 import { User, UserNest } from "../model/user.model"
 import { config, DotenvConfigOptions } from "dotenv";
 import path from "path";
@@ -39,6 +39,8 @@ export const authentication = [
         // Create Access Token
         // @ts-ignore
         const accessToken = sign(foundedUser, process.env.PRIVATE_KEY, { expiresIn : '20s' });
+        // @ts-ignore
+        const { exp } = decode(accessToken);
         
         // Create Refresh Token
         // @ts-ignore
@@ -53,7 +55,10 @@ export const authentication = [
             code : 200,
             status : 'OK',
             data : {
-                accessToken,
+                accessToken : {
+                    token : accessToken,
+                    exp : exp
+                },
                 refreshToken,
                 user : {...foundedUser, roles : roles} as UserNest
             }

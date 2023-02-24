@@ -43,12 +43,15 @@ export const getAllUsersHandler = [
     checkRole('Manager', 'HR', 'Admin'),
     async ( req : Request, res : Response, next : NextFunction) => {
         try {
+            const { username } = req.params;
             const listUsers = await userService.getAllUsers();
-
+            const result = listUsers.filter(user => {
+                return user.username !== username
+            })
             const response = {
                 code : 200,
                 status : 'OK',
-                data : listUsers
+                data : result
             } as SuccessReponse<User>
 
             return res.status(response.code).json(response)

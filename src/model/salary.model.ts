@@ -7,6 +7,7 @@ export interface ISalary {
     real_take : number | null
 }
 
+
 export class Salary {
     public salary_id : string;
     public empolyee_id : string;

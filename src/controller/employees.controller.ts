@@ -39,3 +39,35 @@ export const createEmployeesHandler = [
         }
     }
 ]
+
+
+export const getAllEmployeesHandler = [
+    checkRole('Admin'),
+    async (req : Request, res : Response, next : NextFunction) => {
+        try {
+            let data = await Employee.findAll();
+            let result : any[];
+            if(data) {
+                result = data.map(async rec => {
+                    if(rec.job_id) {
+                        const record = new Employee(rec);
+                        // @ts-ignore
+                        const job = await record.getJob();
+                        return {...record, job_function : job};
+                    } else {
+                        return rec;
+                    }
+                })
+                result = await Promise.all(result);
+                const response = {
+                    code : 200,
+                    status : 'OK',
+                    data : result
+                } as SuccessReponse<Employee>
+                return res.status(response.code).json(response);
+            }
+        } catch (error) {
+            next(error);
+        }
+    }
+]
