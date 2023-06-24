@@ -1,9 +1,10 @@
 import { QueryConfig, QueryResult } from "pg";
 import client from "../../dbconnect/dbconnect";
+import { IEmployee } from "./employee.model";
 
 export interface IAdvance {
     advance_id? : number,
-    employee_id : string,
+    employee_id : IEmployee['employee_id'],
     amount : number,
     reason : string,
     payment_time : Date
@@ -11,7 +12,7 @@ export interface IAdvance {
 
 export class Advance implements IAdvance {
     public advance_id?: number;
-    public employee_id: string;
+    public employee_id: IEmployee['employee_id'];
     public amount: number;
     public reason: string;
     public payment_time: Date;

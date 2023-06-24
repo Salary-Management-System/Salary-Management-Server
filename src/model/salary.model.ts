@@ -1,7 +1,10 @@
+import { IEmployee } from "./employee.model";
+import { IPayroll } from "./payroll.model";
+
 export interface ISalary {
     salary_id : string,
-    employee_id : string,
-    payroll_id : string,
+    employee_id : IEmployee['employee_id'],
+    payroll_id : IPayroll['payroll_id'],
     basic_salary : number,
     total_salary : number | null,
     real_take : number | null
@@ -10,8 +13,8 @@ export interface ISalary {
 
 export class Salary {
     public salary_id : string;
-    public empolyee_id : string;
-    public payroll_id :  string;
+    public empolyee_id : IEmployee['employee_id'];
+    public payroll_id :  IPayroll['payroll_id'];
     public basic_salary : number;
     public total_salary : number | null;
     public real_take : number | null;

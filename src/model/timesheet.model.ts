@@ -6,22 +6,28 @@ export interface ITimeSheet {
     timesheet_id : string,
     name : string
     created_at : Date,
-    creator : string | null
-    censor : IEmployee['employee_id']
+    creator : IEmployee['employee_id']
+    censor : IEmployee['employee_id'] | null
+    censored_at : Date | null
+    updated_at : Date
 }
 
 export class TimeSheet {
     public timesheet_id: string;
     public name: string;
     public created_at: Date;
-    public censor: string;
-    public creator : string | null
-    constructor({ timesheet_id, name, created_at, censor, creator } : ITimeSheet) {
+    public censor: IEmployee['employee_id'] | null;
+    public creator : IEmployee['employee_id'];
+    public censored_at : Date | null;
+    public updated_at : Date;
+    constructor({ timesheet_id, name, created_at, censor, creator, updated_at, censored_at } : ITimeSheet) {
         this.censor = censor;
         this.timesheet_id = timesheet_id;
         this.created_at = created_at;
         this.name = name;
-        this.creator = creator || null;
+        this.creator = creator;
+        this.updated_at = updated_at;
+        this.censored_at = censored_at;
     }
 
     save() : Promise<QueryResult<TimeSheet>> {

@@ -1,9 +1,10 @@
 import { QueryConfig, QueryResult } from "pg";
 import client from "../../dbconnect/dbconnect";
+import { IEmployee } from "./employee.model";
 
 export interface ITimekeeping {
     timekeeping_id? : number,
-    employee_id : string,
+    employee_id : IEmployee['employee_id'],
     time_in? : Date,
     time_out? : Date,
     timesheet_id : string,
@@ -12,7 +13,7 @@ export interface ITimekeeping {
 
 export class Timekeeping {
     public timekeeping_id? : number;
-    public employee_id: string;
+    public employee_id: IEmployee['employee_id'];
     public time_in : Date | null;
     public time_out: Date | null;
     public timesheet_id : string;

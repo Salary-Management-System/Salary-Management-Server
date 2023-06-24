@@ -7,8 +7,8 @@ import { IPosition, Position } from "./position.model";
 
 export interface IJobFunction {
     job_function_id : string,
-    level_id : string,
-    position_id : string,
+    level_id : ILevel['level_id'],
+    position_id : IPosition['position_id'],
     job_requirement : string,
     maximum_salary : number,
     minimum_salary : number,
@@ -21,8 +21,8 @@ export interface IJobFunctionNested extends IJobFunction {
 
 export class JobFunction {
     job_function_id? : string;
-    level_id : string;
-    position_id : string;
+    level_id : ILevel['level_id'];
+    position_id : IPosition['position_id'];
     job_requirement : string;
     maximum_salary : number;
     minimum_salary : number;

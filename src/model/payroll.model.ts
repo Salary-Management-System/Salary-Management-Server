@@ -8,7 +8,7 @@ export interface IPayroll {
     payroll_name : string,
     payment_date : Date | null,
     created_date : Date
-    payroll_type_id : string
+    payroll_type_id : IPayrollType['payroll_type_id']
 }
 
 export interface IPayrollNested extends IPayroll {
@@ -19,7 +19,7 @@ export class Payroll implements IPayroll {
     public payroll_id: string;
     public payroll_name: string;
     public payment_date: Date | null;
-    public payroll_type_id: string;
+    public payroll_type_id: IPayrollType['payroll_type_id'];
     public created_date: Date;
 
     constructor({ payroll_id, payroll_name, payment_date, payroll_type_id, created_date } : IPayroll) {

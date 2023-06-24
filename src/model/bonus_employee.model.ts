@@ -14,8 +14,8 @@ export interface IBonusEmployee {
 
 export class BonusEmployee {
     public id?: number | undefined;
-    public bonus_id: number;
-    public employee_id: string;
+    public bonus_id: IBonus['bonus_id'];
+    public employee_id: IEmployee['employee_id'];
     public created_date: Date;
     public paid_date: Date | null;
     public amount: number;

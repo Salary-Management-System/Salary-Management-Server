@@ -14,8 +14,8 @@ export interface IEmployeeShift {
 
 export class EmployeeShift {
     public id?: number | undefined;
-    public employee_id: string;
-    public shift_id: string;
+    public employee_id: IEmployee['employee_id'];
+    public shift_id: IShift['shift_id'];
     public num_hours: number;
     public checkin: Date | null;
     public checkout: Date | null;
